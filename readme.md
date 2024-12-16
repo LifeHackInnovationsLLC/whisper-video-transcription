@@ -88,7 +88,7 @@ jupytext --sync LHI_WhisperVideoDrive.ipynb
 1. **Open the Notebook:**
    
    - Navigate to your GitHub repository in Colab by selecting **File > Open Notebook > GitHub** and entering your repository URL.
-   - Alternatively, directly open the notebook in Colab via URL: `https://colab.research.google.com/github/your-username/whisper-video-transcription/blob/main/LHI_WhisperVideoDrive.ipynb`
+   - Alternatively, directly open the notebook in Colab via URL: `https://colab.research.google.com/github/LifeHackInnovationsLLC/whisper-video-transcription/blob/main/LHI_WhisperVideoDrive.ipynb#scrollTo=OCvv85Y_u8V7`
 
 2. **Ensure Jupytext is Installed:**
    
@@ -106,6 +106,20 @@ jupytext --sync LHI_WhisperVideoDrive.ipynb
    
    - **At the Start:** The initialization cells install Jupytext and sync the notebook.
    - **At the End:** The final cell syncs any changes back to the `.py` file.
+
+
+## Quick Access Links
+### Google Drive Folders
+For convenience, here are quick links to the relevant Google Drive folders:
+
+1. WCB (WCBradley Videos Folder)
+📂 WCB Videos https://drive.google.com/drive/folders/10VXO4dTg36YySueayLgiAvzeC5dX5fNF?usp=drive_link
+
+2. SXM (SiriusXM Videos Folder)
+📂 SXM Videos https://drive.google.com/drive/folders/17WEAuy7T7NUINzArk-vWrWjjh43GgL-O?usp=drive_link
+
+
+
 
 ## Synchronization with Jupytext
 
