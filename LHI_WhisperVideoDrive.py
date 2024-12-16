@@ -75,8 +75,13 @@ required_modules = {
     "google.colab": "google-colab",
     "whisper": "openai-whisper",
     "librosa": "librosa",
-    "soundfile": "soundfile"
+    "soundfile": "soundfile",
+    "colorama": "colorama",
+    "google-api-python-client": "google-api-python-client",
+    "google-auth-httplib2": "google-auth-httplib2",
+    "google-auth-oauthlib": "google-auth-oauthlib"
 }
+
 
 for module, install_name in required_modules.items():
     try:
@@ -245,6 +250,42 @@ model = whisper.load_model("base.en")
 # model = whisper.load_model("medium.en")
 # model = whisper.load_model("large")
 
+# %%
+# Initialize colorama for console color support
+init(autoreset=True)
+
+# Google Drive API setup
+def initialize_drive_api():
+    """
+    Initialize Google Drive API service account for generating shareable links.
+    """
+    try:
+        credentials = Credentials.from_service_account_file(
+            "path/to/your/service_account.json",
+            scopes=["https://www.googleapis.com/auth/drive"]
+        )
+        service = build("drive", "v3", credentials=credentials)
+        return service
+    except Exception as e:
+        print(Fore.RED + f"Failed to initialize Google Drive API: {e}")
+        return None
+
+drive_service = initialize_drive_api()
+
+def generate_shareable_link(file_id):
+    """
+    Generate a shareable link for a given Google Drive file.
+    """
+    try:
+        permission = {"type": "anyone", "role": "reader"}
+        drive_service.permissions().create(fileId=file_id, body=permission).execute()
+        link = f"https://drive.google.com/file/d/{file_id}/view"
+        return link
+    except Exception as e:
+        print(Fore.RED + f"Failed to generate shareable link: {e}")
+        return None
+
+
 # %% [markdown] id="JIjETRxb5nuE"
 # ##2. Give the application permission to mount the drive and create the folders
 
@@ -296,6 +337,9 @@ import subprocess
 import logging
 import csv
 from datetime import datetime
+from googleapiclient.discovery import build
+from google.oauth2.service_account import Credentials
+from colorama import Fore, Style, init
 # Removed: from urllib.parse import quote
 
 # Helper function to format time
@@ -334,7 +378,7 @@ for video_file in video_files:
     # Skip non-video files
     if not video_file.endswith((".mp4", ".mov", ".avi", ".mkv")):
         skipped_log.append((video_file, "Invalid format"))
-        print(f"Skipped {video_file}: Invalid format.")
+        print(Fore.YELLOW + f"Skipped {video_file}: Invalid format.")
         continue
 
     # Define paths
@@ -344,24 +388,24 @@ for video_file in video_files:
     processed_path = os.path.join(processed_folder, video_file)
 
     try:
-        print(f"Extracting audio for {video_file} to {audio_path}")
+        print(Fore.CYAN + f"Extracting audio for {video_file} to {audio_path}")
         # Extract audio
         try:
             # Attempt to load the audio using librosa
             y, sr = librosa.load(video_path, sr=16000)  # Load audio with 16 kHz sampling rate
             sf.write(audio_path, y, sr)  # Save audio as a WAV file
-            print(f"Audio extraction successful using librosa for {video_file}")
+            print(Fore.GREEN + f"Audio extraction successful using librosa for {video_file}")
         except Exception as e_librosa:
-            print(f"Librosa extraction failed for {video_file}: {e_librosa}")
-            print(f"Falling back to ffmpeg for {video_file}")
+            print(Fore.RED + f"Librosa extraction failed for {video_file}: {e_librosa}")
+            print(Fore.YELLOW + f"Falling back to ffmpeg for {video_file}")
             # Use ffmpeg as a fallback
             subprocess.run(["ffmpeg", "-i", video_path, "-ar", "16000", "-ac", "1", audio_path], check=True)
-            print(f"Audio extraction successful using ffmpeg for {video_file}")
+            print(Fore.GREEN + f"Audio extraction successful using ffmpeg for {video_file}")
 
-        print(f"Starting transcription for {audio_path}")
+        print(Fore.CYAN + f"Starting transcription for {audio_path}")
         # Transcribe the audio using Whisper
         result = model.transcribe(audio_path)
-        print(f"Transcription completed for {audio_path}")
+        print(Fore.GREEN + f"Transcription completed for {audio_path}")
 
         # Create initial transcription
         text = ""
@@ -371,32 +415,42 @@ for video_file in video_files:
             text_segment = segment["text"].strip()
             text += f"[{start_time} - {end_time}] {text_segment}\n\n"
 
-        print(f"Saving transcription to {text_path}")
+        print(Fore.CYAN + f"Saving transcription to {text_path}")
         # Save the transcription
         with open(text_path, "w") as f:
             f.write(text)
-        print(f"Transcription saved successfully for {video_file}")
+        print(Fore.GREEN + f"Transcription saved successfully for {video_file}")
 
-        print(f"Moving file {video_file} to processed folder")
+        print(Fore.CYAN + f"Moving file {video_file} to processed folder")
         # Move the video to ProcessedVideo folder
         shutil.move(video_path, processed_path)
-        print(f"File moved to processed folder: {processed_path}")
+        print(Fore.GREEN + f"File moved to processed folder: {processed_path}")
+
+        # Generate shareable link
+        # Simulated: Replace this with actual file ID retrieval logic
+        file_id = processed_path.split("/")[-1]
+        link = generate_shareable_link(file_id)
+        if link:
+            print(Fore.BLUE + f"Shareable Link: {link}")
+        else:
+            print(Fore.RED + f"Failed to generate shareable link for {video_file}")
 
         # Log success
         success_log.append(video_file)
         logging.info(f"Successfully processed {video_file}")
-        print(f"Successfully processed {video_file}")
+        print(Fore.GREEN + f"Successfully processed {video_file}")
 
     except subprocess.CalledProcessError as e:
         error_message = f"FFmpeg error for {video_file}: {e}"
-        print(error_message)
+        print(Fore.RED + error_message)
         error_log.append((video_file, error_message))
         logging.error(error_message)
     except Exception as e:
         error_message = f"General error for {video_file}: {e}"
-        print(error_message)
+        print(Fore.RED + error_message)
         error_log.append((video_file, error_message))
         logging.error(error_message)
+
 
 # Perform folder parity check
 def get_file_bases(folder):
