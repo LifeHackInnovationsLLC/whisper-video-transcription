@@ -463,38 +463,10 @@ with open(csv_path, "r", encoding="utf-8") as csvfile:
 
 
 # %% id="OCvv85Y_u8V7" outputId="e7b9b784-6cfd-42d4-e3a5-b0c2fdac1b05" colab={"base_uri": "https://localhost:8080/"}
-# ### Jupytext Final Synchronization
-# Ensure the notebook and `.py` file are in sync after all processing.
+# ### Final Note for Synchronization
+# For Colab: Sync changes manually after downloading the notebook.
+# For Local: Use the Jupytext command:
+#    jupytext --sync LHI_WhisperVideoDrive.ipynb
 
-import subprocess
-import sys
-
-def sync_with_jupytext(notebook_file):
-    """
-    Ensure Jupytext is installed and synchronize the notebook with its paired `.py` file.
-    """
-    # Check if Jupytext is installed; install it if missing
-    try:
-        __import__('jupytext')
-        print("Jupytext is already installed.")
-    except ImportError:
-        print("Jupytext not found. Installing...")
-        try:
-            subprocess.run([sys.executable, "-m", "pip", "install", "jupytext"], check=True)
-            print("Jupytext installation successful.")
-        except subprocess.CalledProcessError as e:
-            print(f"Error installing Jupytext: {e}")
-            return
-
-    # Attempt to synchronize the files
-    try:
-        print(f"Synchronizing notebook with '{notebook_file}'...")
-        subprocess.run([sys.executable, "-m", "jupytext", "--sync", notebook_file], check=True)
-        print("Synchronization successful: .ipynb and .py are now in sync.")
-    except FileNotFoundError:
-        print("Jupytext command not found. Skipping synchronization.")
-    except subprocess.CalledProcessError as e:
-        print(f"Error during Jupytext synchronization: {e}")
-
-# Run synchronization
-sync_with_jupytext("LHI_WhisperVideoDrive.ipynb")
+print("Final Note: Synchronize your files locally using Jupytext.")
+print("Colab users: Save your notebook and download it to sync manually.")
