@@ -485,7 +485,7 @@ def sync_with_jupytext(notebook_file):
     # Attempt to synchronize the files
     try:
         print(f"Synchronizing notebook with '{notebook_file}'...")
-        subprocess.run(["jupytext", "--sync", notebook_file], check=True)
+        subprocess.run([sys.executable, "-m", "jupytext", "--sync", notebook_file], check=True)
         print("Synchronization successful: .ipynb and .py are now in sync.")
     except FileNotFoundError:
         print("Jupytext command not found. Skipping synchronization.")
