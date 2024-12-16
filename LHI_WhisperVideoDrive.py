@@ -12,9 +12,12 @@
 #     name: python3
 # ---
 
-# %%
+# %% [markdown] id="view-in-github" colab_type="text"
+# <a href="https://colab.research.google.com/github/LifeHackInnovationsLLC/whisper-video-transcription/blob/main/LHI_WhisperVideoDrive.ipynb" target="_parent"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/></a>
+
+# %% id="857e207c"
 # LHI_WhisperVideoDrive.py
-# %%
+# %% id="f90aaf4f"
 # ---
 # jupyter:
 #   jupytext:
@@ -29,10 +32,10 @@
 #     name: python3
 # ---
 
-# %% [markdown] id="view-in-github" colab_type="text"
+# %% [markdown] id="view-in-github"
 # <a href="https://colab.research.google.com/github/LifeHackInnovationsLLC/whisper-video-transcription/blob/main/LHI_WhisperVideoDrive.ipynb" target="_parent"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/></a>
 
-# %% [markdown] id="1Z6Z6Z6ePz1R"
+# %% [markdown] id="5f7b404b"
 # ### Jupytext Initialization (Sync Logic)
 # Ensure Jupytext is installed and the notebook is paired with the `.py` file.
 #
@@ -60,11 +63,12 @@
 #     print(f"Error during Jupytext synchronization: {e}")
 
 
-# %% Ensure required modules are installed and imported
+# %% Ensure required modules are installed and imported id="e425e731" outputId="88cd1d9d-3c68-4b7d-fef0-c21b5ce95d69" colab={"base_uri": "https://localhost:8080/"}
 # Handle missing modules and Google Colab environment checks
 
 import subprocess
 import sys
+
 
 # Install and import required modules
 required_modules = {
@@ -120,7 +124,7 @@ import soundfile as sf
 # %% [markdown] id="DHhCHnaeTYw8"
 # ##0. Choose which 'LHI Client' or folder to add transcriptions to
 
-# %% id="L20Y96kiPz1R" colab={"base_uri": "https://localhost:8080/"} outputId="b7bdd274-635d-4d43-d73b-154b9d62d148"
+# %% colab={"base_uri": "https://localhost:8080/"} id="L20Y96kiPz1R" outputId="107d8e38-a154-4a66-9be5-05f49633104f"
 import os
 
 # Reusable function to check and mount Google Drive
@@ -222,7 +226,7 @@ print(f"Processed videos folder: {processed_folder}")
 # %% [markdown] id="pFx0mfr031aw"
 # ##1. Load the code libraries
 
-# %% id="PomTPiCR5ihc" colab={"base_uri": "https://localhost:8080/"} outputId="bcb695ef-5838-4815-c862-132c09817166"
+# %% colab={"base_uri": "https://localhost:8080/"} id="PomTPiCR5ihc" outputId="45a93879-07fa-4652-f974-abc3c4869ff2"
 # !pip install git+https://github.com/openai/whisper.git
 # !sudo apt update && sudo apt install ffmpeg
 # !pip install librosa
@@ -284,7 +288,7 @@ model = whisper.load_model("base.en")
 #
 #
 
-# %% id="D_rB5M99nmhw" colab={"base_uri": "https://localhost:8080/"} outputId="59e251c7-81a2-4c92-ac70-ad4e94b25ad4"
+# %% colab={"base_uri": "https://localhost:8080/"} id="D_rB5M99nmhw" outputId="e6c4a64f-83e9-49e7-d865-640da49a8a35"
 import os
 import shutil
 from datetime import timedelta
@@ -458,7 +462,7 @@ with open(csv_path, "r", encoding="utf-8") as csvfile:
     print(csvfile.read())
 
 
-# %% id="OCvv85Y_u8V7"
+# %% id="OCvv85Y_u8V7" outputId="e7b9b784-6cfd-42d4-e3a5-b0c2fdac1b05" colab={"base_uri": "https://localhost:8080/"}
 # ### Jupytext Final Synchronization
 # Ensure the notebook and `.py` file are in sync after all processing.
 
