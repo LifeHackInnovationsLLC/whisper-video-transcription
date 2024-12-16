@@ -12,11 +12,91 @@
 #     name: python3
 # ---
 
+# %%
+# LHI_WhisperVideoDrive.py
+# %%
+# ---
+# jupyter:
+#   jupytext:
+#     formats: ipynb,py:percent
+#     text_representation:
+#       extension: .py
+#       format_name: percent
+#       format_version: '1.3'
+#       jupytext_version: 1.16.5
+#   kernelspec:
+#     display_name: Python 3
+#     name: python3
+# ---
+
 # %% [markdown] id="view-in-github" colab_type="text"
 # <a href="https://colab.research.google.com/github/LifeHackInnovationsLLC/whisper-video-transcription/blob/main/LHI_WhisperVideoDrive.ipynb" target="_parent"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/></a>
 
-# %% [markdown] id="oSzWV5We2jx0"
-# If you're looking at this on GitHub and new to Python Notebooks or Colab, click the Google Colab badge above 👆
+# %% [markdown] id="1Z6Z6Z6ePz1R"
+# ### Jupytext Initialization (Sync Logic)
+# Ensure Jupytext is installed and the notebook is paired with the `.py` file.
+#
+# import subprocess
+# import sys
+#
+# def ensure_module(module_name, install_name=None):
+#     """Install a module if it's not already installed."""
+#     try:
+#         __import__(module_name)
+#         print(f"Module '{module_name}' is already installed.")
+#     except ImportError:
+#         install_name = install_name or module_name
+#         print(f"Module '{module_name}' not found. Installing...")
+#         subprocess.run([sys.executable, "-m", "pip", "install", install_name], check=True)
+#
+# Ensure Jupytext is installed
+# ensure_module("jupytext")
+#
+# Sync the notebook with its paired `.py` file
+# try:
+#     subprocess.run(["jupytext", "--sync", "LHI_WhisperVideoDrive.ipynb"], check=True)
+#     print("Jupytext synchronization successful.")
+# except subprocess.CalledProcessError as e:
+#     print(f"Error during Jupytext synchronization: {e}")
+
+
+# %% Ensure required modules are installed and imported
+# Handle missing modules and Google Colab environment checks
+
+import subprocess
+import sys
+
+# Install and import required modules
+required_modules = {
+    "google.colab": "google-colab",
+    "whisper": "openai-whisper",
+    "librosa": "librosa",
+    "soundfile": "soundfile"
+}
+
+for module, install_name in required_modules.items():
+    try:
+        __import__(module)
+        print(f"Module '{module}' is already installed.")
+    except ImportError:
+        print(f"Module '{module}' not found. Installing...")
+        subprocess.run([sys.executable, "-m", "pip", "install", install_name], check=True)
+
+# Conditional import for Google Colab
+try:
+    from google.colab import drive
+    print("Google Colab environment detected.")
+except ImportError:
+    print("Google Colab environment not detected. Skipping Colab imports.")
+
+# Import other required modules
+import whisper
+import librosa
+import soundfile as sf
+
+
+
+# %% [markdown] id="1Z6Z6Z6ePz1R"
 #
 # #📼 OpenAI Whisper + Google Drive Video Transcription
 #
@@ -379,3 +459,14 @@ with open(csv_path, "r", encoding="utf-8") as csvfile:
 
 
 # %% id="OCvv85Y_u8V7"
+# ### Jupytext Final Synchronization
+# Ensure the notebook and `.py` file are in sync after all processing.
+
+import subprocess
+
+# Sync the notebook with the `.py` file before ending the session
+try:
+    subprocess.run(["jupytext", "--sync", "LHI_WhisperVideoDrive.ipynb"], check=True)
+    print("Synchronization successful: .ipynb and .py are now in sync.")
+except subprocess.CalledProcessError as e:
+    print(f"Error occurred during Jupytext synchronization: {e}")
