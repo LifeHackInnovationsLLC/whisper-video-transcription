@@ -12,7 +12,7 @@
 #     name: python3
 # ---
 
-# %% [markdown] id="view-in-github" colab_type="text"
+# %% [markdown] colab_type="text" id="view-in-github"
 # <a href="https://colab.research.google.com/github/LifeHackInnovationsLLC/whisper-video-transcription/blob/main/LHI_WhisperVideoDrive.ipynb" target="_parent"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/></a>
 
 # %% id="857e207c"
@@ -63,7 +63,7 @@
 #     print(f"Error during Jupytext synchronization: {e}")
 
 
-# %% Ensure required modules are installed and imported id="e425e731" outputId="88cd1d9d-3c68-4b7d-fef0-c21b5ce95d69" colab={"base_uri": "https://localhost:8080/"}
+# %% Ensure required modules are installed and imported colab={"base_uri": "https://localhost:8080/"} id="e425e731" outputId="88cd1d9d-3c68-4b7d-fef0-c21b5ce95d69"
 # Handle missing modules and Google Colab environment checks
 
 import subprocess
@@ -131,6 +131,9 @@ import soundfile as sf
 
 # %% colab={"base_uri": "https://localhost:8080/"} id="L20Y96kiPz1R" outputId="107d8e38-a154-4a66-9be5-05f49633104f"
 import os
+
+
+
 
 # Reusable function to check and mount Google Drive
 def check_and_mount_drive():
@@ -261,7 +264,7 @@ def initialize_drive_api():
     """
     try:
         credentials = Credentials.from_service_account_file(
-            "path/to/your/service_account.json",
+            "/content/key.json",
             scopes=["https://www.googleapis.com/auth/drive"]
         )
         service = build("drive", "v3", credentials=credentials)
@@ -271,6 +274,29 @@ def initialize_drive_api():
         return None
 
 drive_service = initialize_drive_api()
+
+
+def get_file_id(file_name, folder_id):
+    """
+    Retrieve the file ID for a given file name in a specific folder on Google Drive.
+    """
+    try:
+        results = drive_service.files().list(
+            q=f"name='{file_name}' and '{folder_id}' in parents",
+            spaces="drive",
+            fields="files(id, name)",
+            pageSize=1
+        ).execute()
+        items = results.get("files", [])
+        if items:
+            return items[0]["id"]
+        else:
+            print(Fore.YELLOW + f"File '{file_name}' not found in folder {folder_id}.")
+            return None
+    except Exception as e:
+        print(Fore.RED + f"Error retrieving file ID for '{file_name}': {e}")
+        return None
+
 
 def generate_shareable_link(file_id):
     """
@@ -284,6 +310,7 @@ def generate_shareable_link(file_id):
     except Exception as e:
         print(Fore.RED + f"Failed to generate shareable link: {e}")
         return None
+
 
 
 # %% [markdown] id="JIjETRxb5nuE"
@@ -426,14 +453,76 @@ for video_file in video_files:
         shutil.move(video_path, processed_path)
         print(Fore.GREEN + f"File moved to processed folder: {processed_path}")
 
-        # Generate shareable link
-        # Simulated: Replace this with actual file ID retrieval logic
-        file_id = processed_path.split("/")[-1]
-        link = generate_shareable_link(file_id)
-        if link:
-            print(Fore.BLUE + f"Shareable Link: {link}")
+        # Retrieve file ID and generate shareable link
+        file_id = get_file_id(video_file, processed_folder_id)
+        if file_id:
+            link = generate_shareable_link(file_id)
+            if link:
+                print(Fore.BLUE + f"Shareable Link: {link}")
+            else:
+                print(Fore.RED + f"Failed to generate shareable link for {video_file}")
         else:
-            print(Fore.RED + f"Failed to generate shareable link for {video_file}")
+            print(Fore.RED + f"Could not retrieve file ID for {video_file}")
+
+        success_log.append(video_file)
+        logging.info(f"Successfully processed {video_file}")
+    except Exception as e:
+        error_log.append((video_file, str(e)))
+        logging.error(f"Error processing {video_file}: {e}")
+
+
+        def get_or_create_folder(folder_name, parent_id=None):
+            """
+            Retrieve or create a folder in Google Drive.
+            """
+            try:
+                # Search for the folder
+                query = f"name='{folder_name}' and mimeType='application/vnd.google-apps.folder'"
+                if parent_id:
+                    query += f" and '{parent_id}' in parents"
+                results = drive_service.files().list(
+                    q=query,
+                    spaces="drive",
+                    fields="files(id, name)",
+                    pageSize=1
+                ).execute()
+                items = results.get("files", [])
+                if items:
+                    return items[0]["id"]  # Return the existing folder ID
+                else:
+                    # Create the folder if it doesn't exist
+                    folder_metadata = {
+                        "name": folder_name,
+                        "mimeType": "application/vnd.google-apps.folder",
+                        "parents": [parent_id] if parent_id else []
+                    }
+                    folder = drive_service.files().create(body=folder_metadata, fields="id").execute()
+                    return folder.get("id")
+            except Exception as e:
+                print(Fore.RED + f"Error creating or retrieving folder '{folder_name}': {e}")
+                return None
+
+
+        # Dynamically retrieve or create the ProcessedVideo folder
+        processed_folder_id = get_or_create_folder("ProcessedVideo", parent_id=rootFolderID)
+        if not processed_folder_id:
+            print(Fore.RED + "Failed to retrieve or create ProcessedVideo folder. Exiting.")
+            raise SystemExit("ProcessedVideo folder initialization failed.")
+
+
+
+
+
+        # Retrieve file ID from Google Drive
+        file_id = get_file_id(video_file, processed_folder_id)  # Assuming `processed_folder_id` is the ID of the ProcessedVideo folder
+        if file_id:
+            link = generate_shareable_link(file_id)
+            if link:
+                print(Fore.BLUE + f"Shareable Link: {link}")
+            else:
+                print(Fore.RED + f"Failed to generate shareable link for {video_file}")
+        else:
+            print(Fore.RED + f"Could not retrieve file ID for {video_file}")
 
         # Log success
         success_log.append(video_file)
@@ -516,7 +605,7 @@ with open(csv_path, "r", encoding="utf-8") as csvfile:
     print(csvfile.read())
 
 
-# %% id="OCvv85Y_u8V7" outputId="e7b9b784-6cfd-42d4-e3a5-b0c2fdac1b05" colab={"base_uri": "https://localhost:8080/"}
+# %% colab={"base_uri": "https://localhost:8080/"} id="OCvv85Y_u8V7" outputId="e7b9b784-6cfd-42d4-e3a5-b0c2fdac1b05"
 # ### Final Note for Synchronization
 # For Colab: Sync changes manually after downloading the notebook.
 # For Local: Use the Jupytext command:
